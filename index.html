@@ -1,0 +1,444 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Квантовый Генератор Изображений</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #0d0d0d 0%, #000000 100%);
+            color: #ffffff;
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            overflow: hidden;
+            z-index: -2;
+        }
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite ease-in-out alternate;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 3em;
+            color: #00ffe7;
+            text-shadow: 0 0 20px #00ffe7, 0 0 40px #00ffe7;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .generator-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px #00ffe7, inset 0 0 20px #00ffe7;
+            border: 2px solid #00ffe7;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #00ffe7;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            background: #1a1a1a;
+            color: #00ffe7;
+            border: 2px solid #00ffe7;
+            box-shadow: 0 0 10px #00ffe7;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            box-shadow: 0 0 20px #00ffe7, 0 0 30px #00ffe7;
+            border-color: #00ffe7;
+        }
+        .button-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #00ffe7, #0099ff);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            box-shadow: 0 0 20px #00ffe7, 0 0 40px #00ffe7;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #00ffe7, 0 0 60px #00ffe7;
+        }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300%;
+            height: 300%;
+            background: radial-gradient(circle, #00ffe7 10%, transparent 10.01%);
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.5s;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+        button:hover::before {
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulseButton 1s infinite;
+        }
+        @keyframes pulseButton {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+        }
+        canvas {
+            margin-top: 20px;
+            max-width: 512px;
+            max-height: 512px;
+            border: 4px solid #00ffe7;
+            box-shadow: 0 0 40px #00ffe7;
+            display: none;
+            border-radius: 10px;
+        }
+        .loading {
+            position: absolute;
+            top: 100%;
+            margin-top: 20px;
+            color: #00ffe7;
+            font-weight: bold;
+            font-size: 1.2em;
+            display: none;
+            animation: loadingPulse 1.5s infinite;
+        }
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .quantum-indicator {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #00ffe7;
+            font-size: 0.9em;
+            font-style: italic;
+            opacity: 0.7;
+        }
+        .quantum-line {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100vw;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #00ffe7, transparent);
+            transform: translate(-50%, -50%) rotate(45deg);
+            animation: scan 5s linear infinite;
+        }
+        @keyframes scan {
+            0% { transform: translate(-50%, -50%) rotate(45deg) translateY(-100vh); }
+            100% { transform: translate(-50%, -50%) rotate(45deg) translateY(100vh); }
+        }
+    </style>
+</head>
+<body>
+    <div class="starfield" id="starfield"></div>
+    <div class="quantum-line"></div>
+
+    <h1>Квантовый Генератор</h1>
+    <div class="generator-container">
+        <div class="input-group">
+            <label for="promptInput">Описание изображения:</label>
+            <input type="text" id="promptInput" placeholder="Введите описание...">
+        </div>
+        <div class="input-group">
+            <label for="styleSelect">Выберите стиль:</label>
+            <select id="styleSelect">
+                <option value="">По умолчанию</option>
+                <!-- Базовые стили -->
+                <optgroup label="Базовые стили">
+                    <option value="anime">Аниме</option>
+                    <option value="photographic">Фотографический</option>
+                    <option value="digital_art">Цифровое искусство</option>
+                    <option value="cyberpunk">Киберпанк</option>
+                    <option value="oil_painting">Масляная живопись</option>
+                    <option value="watercolor">Акварель</option>
+                    <option value="sci-fi">Научная фантастика</option>
+                    <option value="fantasy">Фэнтези</option>
+                    <option value="neon">Неоновый стиль</option>
+                    <option value="minimalism">Минимализм</option>
+                </optgroup>
+                <!-- Дополнительные стили -->
+                <optgroup label="Дополнительные стили">
+                    <option value="realistic">Реалистичный</option>
+                    <option value="3d_render">3D-рендеринг</option>
+                    <option value="surreal">Сюрреализм</option>
+                    <option value="impressionist">Импрессионизм</option>
+                    <option value="gothic">Готика</option>
+                    <option value="steampunk">Стимпанк</option>
+                    <option value="vintage">Винтажный</option>
+                    <option value="manga">Манга</option>
+                    <option value="pixel_art">Пиксель-арт</option>
+                    <option value="futurism">Футуризм</option>
+                    <option value="pop_art">Поп-арт</option>
+                    <option value="graffiti">Граффити</option>
+                    <option value="cyber_art">Кибер-арт</option>
+                    <option value="abstract">Абстракция</option>
+                    <option value="fantasy_art">Фэнтези-арт</option>
+                    <option value="dark_ambient">Темная атмосфера</option>
+                    <option value="retro">Ретро</option>
+                    <option value="glitch">Глитч-арт</option>
+                    <option value="biomechanical">Биомеханический</option>
+                    <option value="ink">Чернильный стиль</option>
+                    <option value="pastel">Пастель</option>
+                    <option value="charcoal">Угольный рисунок</option>
+                    <option value="pencil_drawing">Карандашный рисунок</option>
+                    <option value="acrylic">Акрил</option>
+                    <option value="pen_and_ink">Ручка и чернила</option>
+                    <option value="ink_wash">Тушь</option>
+                    <option value="line_art">Линейный арт</option>
+                    <option value="cel_shaded">Целлулоидное закрашивание</option>
+                    <option value="flat_art">Флэт-арт</option>
+                    <option value="low_poly">Низкополигональный</option>
+                    <option value="isometric">Изометрия</option>
+                    <option value="top_down">Вид сверху</option>
+                    <option value="vector_art">Векторный арт</option>
+                    <option value="holographic">Голографический</option>
+                    <option value="kawaii">Кавайный стиль</option>
+                    <option value="noir">Нуар</option>
+                    <option value="technicolor">Техноколор</option>
+                    <option value="monochrome">Монохром</option>
+                    <option value="studio_lighting">Студийное освещение</option>
+                    <option value="natural_lighting">Естественное освещение</option>
+                    <option value="neon_lighting">Неоновое освещение</option>
+                    <option value="space_theme">Космическая тема</option>
+                    <option value="medieval">Средневековый</option>
+                </optgroup>
+            </select>
+        </div>
+        <div class="button-group">
+            <button onclick="generateImage()">Сгенерировать</button>
+            <button onclick="upscaleImage()" id="upscaleBtn" disabled>Апскейл (x2)</button>
+            <button onclick="downloadImage()">Сохранить как PNG</button>
+        </div>
+        <div class="loading" id="loading">Квантовый процессор активирован...</div>
+        <canvas id="imageCanvas" width="512" height="512"></canvas>
+    </div>
+    <div class="quantum-indicator">Квантовая сеть Q-Net v3.2 активна</div>
+
+    <script>
+        // Версия S1: Первая стабильная версия с расширенным набором стилей
+        function createStars(count) {
+            const starfield = document.getElementById('starfield');
+            for (let i = 0; i < count; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.width = star.style.height = `${Math.random() * 2 + 1}px`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                starfield.appendChild(star);
+            }
+        }
+
+        createStars(200);
+
+        let generatedImageUrl = null;
+        let isUpscaled = false;
+
+        function updatePromptWithStyle() {
+            const promptInput = document.getElementById('promptInput');
+            const styleSelect = document.getElementById('styleSelect');
+            let prompt = promptInput.value.trim();
+            const style = styleSelect.value;
+
+            prompt = prompt.replace(/,\s*by style\s+[^,]*/gi, '').trim();
+
+            if (style && style !== "") {
+                prompt = prompt ? `${prompt}, by style ${style}` : `by style ${style}`;
+            }
+
+            promptInput.value = prompt;
+        }
+
+        document.getElementById('styleSelect').addEventListener('change', updatePromptWithStyle);
+
+        function generateImage() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) return;
+
+            const canvas = document.getElementById('imageCanvas');
+            const ctx = canvas.getContext('2d');
+            const loading = document.getElementById('loading');
+            const upscaleBtn = document.getElementById('upscaleBtn');
+            
+            loading.style.display = 'block';
+            canvas.style.display = 'none';
+            upscaleBtn.disabled = true;
+
+            const timestamp = Date.now();
+            const randomSeed = Math.floor(Math.random() * 1000000);
+            
+            const baseApiUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?t=${timestamp}&seed=${randomSeed}`;
+            
+            fetch(baseApiUrl)
+                .then(response => {
+                    if (!response.ok) throw new Error('Ошибка загрузки изображения');
+                    return response.blob();
+                })
+                .then(blob => {
+                    const imageUrl = URL.createObjectURL(blob);
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        
+                        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                        const x = (canvas.width - img.width * scale) / 2;
+                        const y = (canvas.height - img.height * scale) / 2;
+                        
+                        ctx.drawImage(img, 0, 0, img.width, img.height, x, y, img.width * scale, img.height * scale);
+                        
+                        generatedImageUrl = imageUrl;
+                        isUpscaled = false;
+                        
+                        loading.style.display = 'none';
+                        canvas.style.display = 'block';
+                        upscaleBtn.disabled = false;
+                    };
+                    
+                    img.src = imageUrl;
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    alert("Не удалось сгенерировать изображение. Попробуйте другой запрос.");
+                    console.error(error);
+                });
+        }
+
+        function upscaleImage() {
+            const canvas = document.getElementById('imageCanvas');
+            const ctx = canvas.getContext('2d');
+            const loading = document.getElementById('loading');
+            loading.style.display = 'block';
+            
+            const upscaleFactor = 2;
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            tempCanvas.width = canvas.width * upscaleFactor;
+            tempCanvas.height = canvas.height * upscaleFactor;
+            
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            
+            tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            canvas.width *= upscaleFactor;
+            canvas.height *= upscaleFactor;
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(tempCanvas, 0, 0, canvas.width, canvas.height);
+            
+            generatedImageUrl = canvas.toDataURL('image/png');
+            isUpscaled = true;
+            
+            loading.style.display = 'none';
+            document.getElementById('upscaleBtn').disabled = true;
+        }
+
+        function downloadImage() {
+            const canvas = document.getElementById('imageCanvas');
+            if (!generatedImageUrl) {
+                alert('Сначала сгенерируйте изображение!');
+                return;
+            }
+
+            if (isUpscaled) {
+                canvas.toBlob(blob => {
+                    const link = document.createElement('a');
+                    link.download = 'quantum_image_upscaled.png';
+                    link.href = URL.createObjectURL(blob);
+                    link.click();
+                }, 'image/png');
+            } else {
+                const link = document.createElement('a');
+                link.download = 'quantum_image.png';
+                link.href = generatedImageUrl;
+                link.click();
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
